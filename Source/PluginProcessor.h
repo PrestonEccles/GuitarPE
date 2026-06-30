@@ -56,6 +56,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    int midiNote1 = -1;
+    int midiNote2 = -1;
+    float phase1 = 0;
+    float phase2 = 0;
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarPEAudioProcessor)

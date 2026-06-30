@@ -129,7 +129,7 @@ bool GuitarPEAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-void GuitarPEAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void GuitarPEAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiBuffer)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -150,11 +150,49 @@ void GuitarPEAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+    for (auto& i : midiBuffer)
+    {
+        auto msg = i.getMessage();
+        if (msg.isNoteOn())
+        {
+            if (midiNote1 == -1)
+                midiNote1 = msg.getNoteNumber();
+            else if (midiNote2 == -1)
+                midiNote2 = msg.getNoteNumber();
+        }
+        if (msg.isNoteOff())
+        {
+            if (midiNote1 == msg.getNoteNumber())
+                midiNote1 = -1;
+            if (midiNote2 == msg.getNoteNumber())
+                midiNote2 = -1;
+        }
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        int note = i == 0 ? midiNote1 : midiNote2;
+        if (note == -1)
+            continue;
+        float frequency = juce::MidiMessage::getMidiNoteInHertz(note);
+
+        float& phase = i == 0 ? phase1 : phase2;
+        float originalPhase = phase;
+        for (auto chan = 0; chan < buffer.getNumChannels(); ++chan)
+        {
+            phase = originalPhase;
+
+            for (auto i = 0; i < buffer.getNumSamples(); ++i)
+            {
+                float sampleOutput = std::sin(phase) * .2f;
+                buffer.setSample(chan, i, buffer.getSample(chan, i) + sampleOutput);
+
+                float phaseDelta = (float)(juce::MathConstants<double>::twoPi * frequency / getSampleRate());
+                // increment the phase step for the next sample
+                phase = std::fmod(phase + phaseDelta, juce::MathConstants<float>::twoPi);
+            }
+        }
     }
 }
 
