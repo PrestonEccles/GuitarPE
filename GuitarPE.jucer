@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="XVJHvD" name="GuitarPE" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginFormats="buildStandalone,buildVST3" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              cppLanguageStandard="17">
   <MAINGROUP id="a0dUmC" name="GuitarPE">
     <GROUP id="{93D92D37-935D-9E84-702D-0C3FA97B0322}" name="Source">
+      <FILE id="pDMnzH" name="Globals.h" compile="0" resource="0" file="Source/Globals.h"/>
       <FILE id="ggHVZe" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="bDYKXe" name="PluginProcessor.h" compile="0" resource="0"
